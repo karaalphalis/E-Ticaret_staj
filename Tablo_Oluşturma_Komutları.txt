@@ -1,0 +1,134 @@
+use 'e-ticaret_DB';
+
+#CREATE TABLE categories(
+#    id int unsigned primary key auto_increment,
+#    name varchar(50) not null ,
+#    description varchar(255),
+#    parent_id int null ,
+#    created_at timestamp not null default current_timestamp,
+#    updated_ad timestamp not null default current_timestamp
+#);
+insert into categories(name, description,parent_id) values ("Deneme2","sadassasaas","3");
+
+#CREATE TABLE  brands(
+#    id int unsigned primary key  auto_increment,
+#    name varchar(50) not null unique ,
+#    created_at timestamp not null default current_timestamp,
+#    updated_ad timestamp not null default current_timestamp
+#);
+insert into brands (name) values ("Adidas"),("Nike"),("Puma");
+
+ALTER table categories add column brand_id int after description;
+alter table categories add constraint  fk_category_id foreign key (parent_id)  references categories (id);
+alter table categories modify parent_id int unsigned;
+alter table categories modify brand_id int unsigned;
+alter table categories add constraint  fk_brand_id foreign key (brand_id) references  brands (id);
+
+create table products
+(
+    id          int not null primary key auto_increment,
+    name        varchar(100) not null,
+    slug_name   varchar(100) not null unique,
+    category_id int unsigned,
+    status      boolean               default false,
+    created_at  timestamp    not null default current_timestamp,
+    updated_ad  timestamp    not null default current_timestamp,
+    foreign key (category_id) references categories (id) on delete cascade
+);
+insert into products (name, slug_name, category_id, status) values
+("ürün1", "urun1",1 ,0),
+("ürün2", "urun2",1 ,1),
+("ürün3", "urun3",2 ,1),
+("ürün4", "urun4",3 ,0);
+
+create table product_detail(
+    id int not null primary key auto_increment,
+    product_id int not null ,
+    description text not null ,
+    short_description varchar (250) ,
+    price decimal(10,2) default 0,
+    final_price decimal(10,2) default 0,
+    stock int default 0,
+    discount_rate double not null ,
+    created_at  timestamp    not null default current_timestamp,
+    updated_ad  timestamp    not null default current_timestamp,
+    foreign key (product_id) references products (id) on delete  cascade
+);
+
+insert into product_detail (product_id, description, price,final_price, stock, discount_rate) values
+(1,"asdasdas",12,15,1,20),
+(2,"asdasdas",12,15,1,20),
+(3,"asdasdas",12,15,1,20),
+(4,"asdasdas",12,15,1,20);
+
+create table users (
+    id int not null primary key auto_increment,
+    name varchar(100) not null,
+    email varchar(100) not null unique ,
+    password varchar(100) not null ,
+    created_at  timestamp    not null default current_timestamp,
+    updated_ad  timestamp    not null default current_timestamp
+);
+
+insert into users (name, email, password) values
+("halis","karaalp912@gmail.com",12345678),
+("yusuf","karaalp913@gmail.com",12345678),
+("mehmet","karaalp914@gmail.com",12345678),
+("barış","karaalp915@gmail.com",12345678);
+
+create table discount(
+    id int not null primary key auto_increment,
+    product_id int ,
+    category_id int unsigned,
+    code varchar(50),
+    rate int default 0,
+    cash decimal(5,2) default 0,
+    amount int default 0,
+    status boolean default true,
+    start_date date,
+    end_date date,
+    created_at  timestamp    not null default current_timestamp,
+    updated_ad  timestamp    not null default current_timestamp,
+    foreign key (product_id) references products(id) on delete cascade ,
+    foreign key (category_id) references categories(id) on delete cascade
+);
+
+insert into discount(product_id,category_id,code,rate, cash, amount, start_date, end_date) values
+(1,1,"Ayakkabı100",0,100,10,"2024-09-01","2024-09-16"),
+(1,1,"Ayakkabı200",0,200,10,"2024-09-01","2024-09-16"),
+(1,1,"Ayakkabı00",0,300,10,"2024-09-01","2024-09-16"),
+(1,1,"Ayakkabı400",0,400,10,"2024-09-01","2024-09-16");
+
+create table shopping_card(
+    id int not null primary key  auto_increment,
+    user_id int not null ,
+    discount_id int not null ,
+    created_at timestamp not null default current_timestamp,
+    updated_ad timestamp not null default current_timestamp,
+    foreign key (user_id) references users(id) on delete cascade ,
+    foreign key (discount_id) references discount(id) on delete cascade
+);
+alter table shopping_card modify discount_id int;
+
+create table shopping_details(
+    id int not null primary key  auto_increment,
+    shopping_card_id int not null ,
+    product_id int not null ,
+    amount int not null ,
+    created_at timestamp not null default current_timestamp,
+    updated_ad timestamp not null default current_timestamp,
+    foreign key (shopping_card_id) references shopping_card(id) on delete cascade ,
+    foreign key (product_id) references products(id) on delete cascade
+);
+insert into shopping_card(user_id, discount_id) values
+(1,1),
+(2,2),
+(3,3),
+(4,4);
+
+insert into shopping_details(shopping_card_id, product_id, amount) values
+(1,1,10),
+(2,2,10),
+(3,3,10),
+(4,4,10);
+

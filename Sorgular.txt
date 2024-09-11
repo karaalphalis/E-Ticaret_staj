@@ -1,0 +1,60 @@
+# 1.  Soru  markaları çeken sorgu
+SELECT * FROM brands;
+SELECT * FROM brands order by name DESC;#Alfabetik sıralamaya göre terten sıralama
+# 2.  Nike ait satırı çeken sorgu
+SELECT * FROM brands where name='nike';
+SELECT created_at, updated_ad FROM brands where name='nike';
+# 3.  i harfini içeren markalar çeken sorgu
+SELECT * FROM  brands WHERE name like '%das%';
+SELECT * FROM brands WHERE name like '%Pu%' and id = '3' ;
+SELECT * FROM brands WHERE name like '%Pu%' or id = '1' ;
+# 4.  Adidas markalarına ait kategorileri çeken sorgu
+SELECT * from  categories where brand_id=(SELECT id from brands where name='adidas');
+SELECT * from  categories where brand_id=(SELECT id from brands where name='adidas'); #Verinin hızlı çekilebilmesi için en uygun olan biçim
+SELECT c.*, b.id ,b.name  FROM categories c inner join brands b  on c.brand_id=b.id where b.name='adidas';
+# 5.  Alt kategorisi ayakkabı olan kategorileri göster
+insert into categories(name, description,parent_id) values ("Ayakkabı","Ayakkabını alt kategorisi","3");
+SELECT * FROM categories where parent_id = (SELECT id FROM categories where name='Ayakkabı');
+SELECT id FROM categories where name='Ayakkabı';
+SELECT ct.* from categories c inner join categories ct ON c.id=ct.parent_id  where c.name= 'Ayakkabı';
+
+# 6.  İndirim tablosunda  4.ayda geçerli olan indirim kodunu getiren sorgu
+SELECT * FROM discount where (start_date BETWEEN '2024-04-01' and '2024-04-30')
+                        AND  (end_date BETWEEN '2024-04-01' and '2024-04-30' );
+# 7.  Ayakkabılar kategorisine ait ürün ve ürün detaylarını getirmek
+#Bu database emri categori ile frogen keyden birleştirilmediği için gereksizdir.
+SELECT pd.id , price , description ,p.id, p.name  FROM product_detail pd
+    inner join products p
+        ON pd.product_id = p.id
+            where p.category_id =
+                  (SELECT categories.id FROM categories WHERE name= 'Ayakkabı');
+
+#Yukarıdaki kodun düzeltilmiş hali
+SELECT * FROM product_detail pd
+    inner join products p ON pd.product_id = p.id
+    inner join categories c ON p.category_id = c.id
+    WHERE c.name='ayakkabı';
+
+# 8.  Ayakkabılar kategoirine ait aktif olan ürün ve detaylarını getirmek
+
+SELECT pd.*,p.* FROM product_detail pd
+    inner join products p ON pd.product_id = p.id
+    inner join categories c ON p.category_id = c.id
+    WHERE p.status= true AND c.name='ayakkabı';
+
+
+# 9.  İndirim olan ürünleri getirmek.
+SELECT * from product_detail pd
+    inner join products p ON pd.product_id = p.id
+    where pd.discount_rate >0;
+# 10. İndirim uygulanmış sepetleri getir
+SELECT * FROM shopping_details sd
+    inner join shopping_card sc on sd.shopping_card_id = sc.id
+    left join discount d ON sc.discount_id = d.id
+    left join products p ON sd.product_id = p.id
+    left join users u on sc.user_id = u.id
+    where discount_id is not null ;
+# 11. Sepetinde 2 ve daha fazla olan sepeti getirelim
+SELECT shopping_card_id , count(shopping_card_id) as sepetteki_urun_sayisi FROM shopping_details
+GROUP BY  shopping_card_id
+HAVING COUNT(shopping_card_id) >=2;

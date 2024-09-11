@@ -1,0 +1,4 @@
+
+
+* * * * * root /etc/php/php /var/www/html/src/ artisan schedule:run >> /dev/null 2>&1
+* * * * * cd /var/www/html/src/ &&  /usr/local/bin/php artisan schedule:run >> /dev/null 2>&1
