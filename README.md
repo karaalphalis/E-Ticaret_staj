@@ -6,3 +6,4 @@
 İle laravel kurulacak:
 - docker-compose run --rm composer create-project laravel/laravel .
 Ardından .env dosyası içeriği düzenlenecek.
+- docker exec -it <container-id> //bin//sh
